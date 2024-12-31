@@ -1,8 +1,8 @@
 {
-  "name": "@cori-risi/frontend",
+  "name": "formd-interactive-map",
   "version": "1.0.1",
   "author": "Rural Innovation Strategies, Inc.",
-  "description": "Amplify Redux React Vite TS template",
+  "description": "Interactive map of the Form D Business dataset",
   "private": true,
   "type": "module",
   "dependencies": {
