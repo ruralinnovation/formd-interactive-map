@@ -3,7 +3,8 @@ import Map, { Source, Layer, MapRef } from 'react-map-gl';
 import type { FillLayer } from 'react-map-gl';
 import { fitBounds } from '@math.gl/web-mercator';
 import { format } from 'd3-format';
-import { FeatureCollection } from 'geojson';
+import { Feature } from 'geojson';
+import { mean, median } from 'd3-array';
 
 // Constants
 const USA_BOUNDS: [[number, number], [number, number]] = [
@@ -12,6 +13,7 @@ const USA_BOUNDS: [[number, number], [number, number]] = [
 ];
 
 const percentFormat = format('.1%');
+const dollarFormat = format('$,.0f');
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
 // Props type
@@ -21,7 +23,7 @@ interface CountyChoroplethProps {
 
 // HoverInfo type
 interface HoverInfo {
-  feature: FeatureCollection;
+  feature: Feature;
   x: number;
   y: number;
 }
@@ -37,16 +39,24 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
     padding: 20, // Optional padding around the bounds
   });
 
+  const maxAmountRaised = Math.max(
+    ...geojsonData.features.map((feature) => feature.properties?.amount_raised_per_capita)
+  );
+
+  const medianAmoountRaised = median(
+    geojsonData.features.map((feature) => feature.properties?.amount_raised_per_capita)
+  );
+
   const dataLayer: FillLayer = {
     id: 'data',
     type: 'fill',
     paint: {
       'fill-color': {
-        property: 'index',
+        property: 'amount_raised_per_capita',
         stops: [
-          [-10, 'red'],
-          [0, '#FFFDD0'],
-          [10, 'blue'],
+          [0, '#FAF7E8'], // Light cream for the lowest value
+          [medianAmoountRaised, "#7DBAA3"],
+          [maxAmountRaised, '#16343E'], // Dark green for the highest value
         ],
       },
       'fill-opacity': 0.8,
@@ -54,6 +64,8 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
   };
 
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
+
+  console.log("hoverinfo is ", hoverInfo);
 
   const onHover = useCallback((event: mapboxgl.MapMouseEvent & mapboxgl.EventData) => {
     const {
@@ -102,8 +114,8 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
         <div className="tooltip" style={{ left: hoverInfo.x, top: hoverInfo.y }}>
           <div>
             <p>
-              <b>Header</b><br></br>
-              Tooltip content
+              <b>{hoverInfo.feature.properties?.name_co}</b><br></br>
+              Amount raised per capita: {dollarFormat(hoverInfo.feature.properties?.amount_raised_per_capita)}
             </p>
           </div>
         </div>
