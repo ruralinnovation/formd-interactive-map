@@ -7,8 +7,8 @@ import { FeatureCollection } from 'geojson';
 
 // Constants
 const USA_BOUNDS: [[number, number], [number, number]] = [
-    [-125, 24], // Southwest coordinates: [Longitude, Latitude]
-    [-66, 49],  // Northeast coordinates: [Longitude, Latitude]
+  [-125, 24], // Southwest coordinates: [Longitude, Latitude]
+  [-66, 49],  // Northeast coordinates: [Longitude, Latitude]
 ];
 
 const percentFormat = format('.1%');
@@ -101,10 +101,10 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
       {hoverInfo && (
         <div className="tooltip" style={{ left: hoverInfo.x, top: hoverInfo.y }}>
           <div>
-            <div className="tooltip-header">
-              <p>Header</p>
-            </div>
-            <p>Tooltip content</p>
+            <p>
+              <b>Header</b><br></br>
+              Tooltip content
+            </p>
           </div>
         </div>
       )}
