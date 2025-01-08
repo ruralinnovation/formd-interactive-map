@@ -59,12 +59,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
         stops: stops,
       },
       'fill-opacity': 0.8,
-      'fill-outline-color': [
-        'case',
-        ['boolean', ['feature-state', 'hover'], false],
-        '#FF4500', // Highlight border color on hover
-        '#000000', // Default border color
-      ],
+      'fill-outline-color': '#000000'
     }
   };
   
@@ -80,15 +75,6 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
 
     // Update hover info if there's a valid feature
     setHoverInfo(hoveredFeature ? { feature: hoveredFeature, x, y } : null);
-
-    const feature_geoid = hoveredFeature?.properties?.geoid_co || undefined;
-    
-    if (mapRef.current && feature_geoid !== undefined) {
-      const map = mapRef.current.getMap();
-      map.setFeatureState({ source: 'formd-data', id: feature_geoid }, { hover: false });
-
-    }
-
   }, []);
 
   useEffect(() => {
@@ -120,7 +106,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
       interactiveLayerIds={['data']}
       onMouseMove={onHover}
     >
-      <Source id="formd-data" type="geojson" data={geojsonData}>
+      <Source type="geojson" data={geojsonData}>
         <Layer {...dataLayer} />
       </Source>
       {hoverInfo && (
