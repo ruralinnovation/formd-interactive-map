@@ -13,16 +13,29 @@ const USA_BOUNDS: [[number, number], [number, number]] = [
   [-66, 49],  // Northeast coordinates
 ];
 
-const percentFormat = format('.1%');
 const dollarFormat = format('$,.0f');
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
-const INITIAL_VIEW_STATE = {
-  longitude: -95.5,
-  latitude: 37,
-  zoom: 3.8,
-  pitch: 0,
-  bearing: 0
+// Calculate initial view state based on container size
+const getInitialViewState = (width: number, height: number) => {
+  const viewport = new WebMercatorViewport({ 
+    width, 
+    height,
+    // Start with a conservative zoom level
+    zoom: 1
+  }).fitBounds(USA_BOUNDS, {
+    padding: 0,
+    offset: [0, 0]
+  });
+
+  return {
+    longitude: viewport.longitude,
+    latitude: viewport.latitude,
+    zoom: viewport.zoom - 0.2, // Slightly zoom out to ensure full visibility
+    pitch: 0,
+    bearing: 0
+  };
+
 };
 
 // Props type
@@ -32,6 +45,18 @@ interface CountyChoroplethProps {
 
 // Component
 const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
+
+  const [dimensions, setDimensions] = useState({ 
+    width: window.innerWidth, 
+    height: window.innerHeight 
+  });
+
+  // Calculate initial view state
+  const initialViewState = useMemo(() => 
+    getInitialViewState(dimensions.width, dimensions.height),
+    [dimensions]
+  );
+
   const [hoverInfo, setHoverInfo] = useState<{
     object: Feature;
     x: number;
@@ -59,6 +84,19 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
     return { breaks, getColorForValue };
   }, [geojsonData]);
 
+  // Update dimensions on resize
+  React.useEffect(() => {
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);  
+
   const layers = useMemo(() => [
     new GeoJsonLayer({
       id: 'counties',
@@ -75,8 +113,8 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
       },
       autoHighlight: true,
       highlightColor: [255, 165, 0, 255],
-      getLineColor: [0, 0, 0, 255],
-      lineWidthMinPixels: .25,
+      getLineColor: [0, 0, 0, 50],
+      lineWidthMinPixels: .5,
       updateTriggers: {
         getFillColor: [breaks]
       }
@@ -94,23 +132,24 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
   return (
     <div style={{ position: 'relative', height: '100vh', width: '100vw' }}>
       <DeckGL
-        initialViewState={INITIAL_VIEW_STATE}
+        initialViewState={initialViewState}
         controller={true}
         layers={layers}
         onHover={onHover}
         getTooltip={({object}) => object && {
           html: `
-            <div style="padding: 8px">
+            <div class='tooltip'>
               <b>${object.properties?.name_co}</b><br/>
               Amount raised per capita: ${dollarFormat(object.properties?.amount_raised_per_capita)}
             </div>
           `,
           style: {
+            fontSize: '15px',
             backgroundColor: 'white',
-            fontSize: '12px',
-            borderRadius: '4px',
+            border: '1px solid black',
+            borderRadius: '5px',
             color: 'black',
-            border: '1px solid black'
+            fontFamily: '"Bitter", monospace'
           }
         }}
       >
