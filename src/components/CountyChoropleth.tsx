@@ -6,6 +6,10 @@ import { WebMercatorViewport } from '@deck.gl/core';
 import { Feature } from 'geojson';
 import { format } from 'd3-format';
 import { jenks } from 'simple-statistics';
+import { FeatureCollection } from 'geojson';
+
+import statesGeoJSON from '../data/states_outline.json';
+const statesOutline = statesGeoJSON as FeatureCollection;
 
 // Constants
 const USA_BOUNDS: [[number, number], [number, number]] = [
@@ -70,7 +74,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
     );
     const numClasses = 5;
     const breaks = jenks(scale_dta, numClasses);
-    const colors = ['#FAF7E8', '#A3D9C5', '#7DBAA3', '#46827E', '#245A61', '#16343E'];
+    const colors = ['#ECF5EF', '#A3D9C5', '#7DBAA3', '#46827E', '#245A61', '#16343E'];
 
     const getColorForValue = (value: number) => {
       for (let i = 0; i < breaks.length; i++) {
@@ -111,14 +115,26 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
         const b = parseInt(color.slice(5, 7), 16);
         return [r, g, b, 200];
       },
+      // extruded: true,
+      // wireframe: true,
+      // getElevation: (d: any) => Math.sqrt(d.properties.amount_raised_per_capita) * 10,
       autoHighlight: true,
       highlightColor: [255, 165, 0, 255],
       getLineColor: [0, 0, 0, 50],
-      lineWidthMinPixels: .5,
+      lineWidthMinPixels: .25,
       updateTriggers: {
         getFillColor: [breaks]
       }
-    })
+    }),
+    new GeoJsonLayer({
+      id: 'states',
+      data: statesOutline,
+      pickable: false,
+      stroked: true,
+      filled: false,
+      getLineColor: [255, 255, 255, 255],
+      lineWidthMinPixels: 1
+    }),
   ], [geojsonData, breaks, getColorForValue]);
 
   const onHover = (info: any) => {
