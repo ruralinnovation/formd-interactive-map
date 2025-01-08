@@ -4,7 +4,9 @@ import type { FillLayer } from 'react-map-gl';
 import { fitBounds } from '@math.gl/web-mercator';
 import { format } from 'd3-format';
 import { Feature } from 'geojson';
-import { mean, median } from 'd3-array';
+
+// import { mean, median } from 'd3-array';
+import { jenks } from 'simple-statistics';
 
 // Constants
 const USA_BOUNDS: [[number, number], [number, number]] = [
@@ -39,13 +41,14 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
     padding: 20, // Optional padding around the bounds
   });
 
-  const maxAmountRaised = Math.max(
-    ...geojsonData.features.map((feature) => feature.properties?.amount_raised_per_capita)
-  );
+  const scale_dta = geojsonData.features.map((feature) => feature.properties?.amount_raised_per_capita);
 
-  const medianAmoountRaised = median(
-    geojsonData.features.map((feature) => feature.properties?.amount_raised_per_capita)
-  );
+  const numClasses = 5;
+
+  // Calculate Jenks breaks
+  const breaks = jenks(scale_dta, numClasses);
+  const colors = ['#FAF7E8', '#A3D9C5', '#7DBAA3', '#46827E', '#245A61', '#16343E'];
+  const stops = breaks.map((breakpoint, i) => [breakpoint, colors[i]]);
 
   const dataLayer: FillLayer = {
     id: 'data',
@@ -53,19 +56,20 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
     paint: {
       'fill-color': {
         property: 'amount_raised_per_capita',
-        stops: [
-          [0, '#FAF7E8'], // Light cream for the lowest value
-          [medianAmoountRaised, "#7DBAA3"],
-          [maxAmountRaised, '#16343E'], // Dark green for the highest value
-        ],
+        stops: stops,
       },
       'fill-opacity': 0.8,
-    },
+      'fill-outline-color': [
+        'case',
+        ['boolean', ['feature-state', 'hover'], false],
+        '#FF4500', // Highlight border color on hover
+        '#000000', // Default border color
+      ],
+    }
   };
+  
 
   const [hoverInfo, setHoverInfo] = useState<HoverInfo | null>(null);
-
-  console.log("hoverinfo is ", hoverInfo);
 
   const onHover = useCallback((event: mapboxgl.MapMouseEvent & mapboxgl.EventData) => {
     const {
@@ -76,6 +80,15 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
 
     // Update hover info if there's a valid feature
     setHoverInfo(hoveredFeature ? { feature: hoveredFeature, x, y } : null);
+
+    const feature_geoid = hoveredFeature?.properties?.geoid_co || undefined;
+    
+    if (mapRef.current && feature_geoid !== undefined) {
+      const map = mapRef.current.getMap();
+      map.setFeatureState({ source: 'formd-data', id: feature_geoid }, { hover: false });
+
+    }
+
   }, []);
 
   useEffect(() => {
@@ -107,7 +120,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
       interactiveLayerIds={['data']}
       onMouseMove={onHover}
     >
-      <Source type="geojson" data={geojsonData}>
+      <Source id="formd-data" type="geojson" data={geojsonData}>
         <Layer {...dataLayer} />
       </Source>
       {hoverInfo && (
