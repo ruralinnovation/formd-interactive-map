@@ -16,6 +16,8 @@ console.log("County GeoJSON is ", countyGeoJSON);
 
 const BASE_URL = import.meta.env.VITE_BASE_S3_URL;
 
+console.log("Base URL is ", BASE_URL);
+
 export default function App() {
 
     const [ selectedCounty, setSelectedCounty] = useState<SelectedCounty | null>(null);
