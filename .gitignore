@@ -28,8 +28,3 @@ dist-ssr
 .Rproj
 .Rproj.user
 .Rhistory
-
-data/
-_targets/
-*.csv
-*.xlsx
