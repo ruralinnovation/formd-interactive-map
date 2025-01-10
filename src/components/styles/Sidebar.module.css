@@ -7,7 +7,8 @@
   left: 20px;
 
   width: 460px;
-  height: 90vh;
+  height: auto;
+  max-height: 90vh;
 
   z-index: 3;
 
@@ -20,4 +21,51 @@
 
   overflow: scroll;
 
+}
+
+.sidebar h2 {
+  margin-bottom: .8em;
+  font-size: 1.4em;
+}
+
+.county-detail {
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.county-detail h3 {
+  margin: 0 0 10px;
+  font-size: 1em;
+  color: #333;
+  font-weight: 600;
+}
+
+.county-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.county-table td {
+  padding: 8px 10px;
+  font-size: .9em;
+  font-weight: normal;
+  color: #555;
+  border-top: 1px solid #ddd;
+}
+
+.county-table tr:first-child td {
+  border-top: none;
+}
+
+.county-table td:first-child {
+  color: #333;
+  text-align: left;
+}
+
+.county-table td:last-child {
+  text-align: right;
 }

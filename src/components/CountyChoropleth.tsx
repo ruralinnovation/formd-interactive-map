@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import DeckGL from '@deck.gl/react';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { Map } from 'react-map-gl';
@@ -9,6 +9,7 @@ import { jenks } from 'simple-statistics';
 import { FeatureCollection } from 'geojson';
 
 import statesGeoJSON from '../data/states_outline.json';
+import { CountyDetail, SelectedCounty } from '../types';
 const statesOutline = statesGeoJSON as FeatureCollection;
 
 // Constants
@@ -45,11 +46,11 @@ const getInitialViewState = (width: number, height: number) => {
 // Props type
 interface CountyChoroplethProps {
   geojsonData: GeoJSON.FeatureCollection;
-  setGEOID: React.Dispatch<React.SetStateAction<string | null>>;
+  setCounty: React.Dispatch<React.SetStateAction<SelectedCounty | null>>;
 }
 
 // Component
-const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setGEOID }) => {
+const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCounty }) => {
 
   const [dimensions, setDimensions] = useState({ 
     width: window.innerWidth, 
@@ -90,7 +91,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setGEO
   }, [geojsonData]);
 
   // Update dimensions on resize
-  React.useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       setDimensions({
         width: window.innerWidth,
@@ -100,7 +101,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setGEO
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);  
+  }, []);
 
   const layers = useMemo(() => [
     new GeoJsonLayer({
@@ -127,8 +128,10 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setGEO
         getFillColor: [breaks]
       },
       onClick: (d: any) => {
-        console.log("What is d? ", d.object.properties.geoid_co);
-        setGEOID(d.object.properties.geoid_co);
+        setCounty({
+          geoid: d.object.properties.geoid_co,
+          name: d.object.properties.name_co
+        });
       }
     }),
     new GeoJsonLayer({
