@@ -1,0 +1,23 @@
+.sidebar {
+
+  position: fixed;
+  display: block;
+
+  top: 20px;
+  left: 20px;
+
+  width: 460px;
+  height: 90vh;
+
+  z-index: 3;
+
+  background-color: white;
+
+  padding: 20px;
+  box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, .2);
+  
+  border-radius: 10px;
+
+  overflow: scroll;
+
+}

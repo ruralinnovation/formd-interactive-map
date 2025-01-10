@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import DeckGL from '@deck.gl/react';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { Map } from 'react-map-gl';
-import { WebMercatorViewport } from '@deck.gl/core';
+import { WebMercatorViewport, PickingInfo } from '@deck.gl/core';
 import { Feature } from 'geojson';
 import { format } from 'd3-format';
 import { jenks } from 'simple-statistics';
@@ -45,10 +45,11 @@ const getInitialViewState = (width: number, height: number) => {
 // Props type
 interface CountyChoroplethProps {
   geojsonData: GeoJSON.FeatureCollection;
+  setGEOID: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 // Component
-const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
+const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setGEOID }) => {
 
   const [dimensions, setDimensions] = useState({ 
     width: window.innerWidth, 
@@ -124,6 +125,10 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
       lineWidthMinPixels: .25,
       updateTriggers: {
         getFillColor: [breaks]
+      },
+      onClick: (d: any) => {
+        console.log("What is d? ", d.object.properties.geoid_co);
+        setGEOID(d.object.properties.geoid_co);
       }
     }),
     new GeoJsonLayer({
@@ -165,7 +170,9 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData }) => {
             border: '1px solid black',
             borderRadius: '5px',
             color: 'black',
-            fontFamily: '"Bitter", monospace'
+            fontFamily: '"Bitter", monospace',
+            marginTop: "7.5px",
+            marginLeft: "7.5px"
           }
         }}
       >
