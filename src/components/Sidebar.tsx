@@ -47,9 +47,10 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data }) => {
             </table>
           </div>
         ))
-      ) : (
-        <p>No data available for the selected county.</p>
-      )}
+      ) : selected_county ? (
+        <p>No data available for the selected county</p>
+      ) : null}
+
     </div>
   );
 };

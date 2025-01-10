@@ -10,6 +10,7 @@ import { FeatureCollection } from 'geojson';
 
 import statesGeoJSON from '../data/states_outline.json';
 import { CountyDetail, SelectedCounty } from '../types';
+import CategoricalMapLegend from './CategoricalMapLegend';
 const statesOutline = statesGeoJSON as FeatureCollection;
 
 // Constants
@@ -88,6 +89,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
     };
 
     return { breaks, getColorForValue };
+
   }, [geojsonData]);
 
   // Update dimensions on resize
@@ -185,6 +187,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
           reuseMaps
         />
       </DeckGL>
+      <CategoricalMapLegend breaks={breaks} colors={['#ECF5EF', '#A3D9C5', '#7DBAA3', '#46827E', '#245A61', '#16343E']} />
     </div>
   );
 };
