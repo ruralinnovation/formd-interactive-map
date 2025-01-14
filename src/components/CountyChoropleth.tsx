@@ -11,6 +11,7 @@ import { FeatureCollection } from 'geojson';
 import statesGeoJSON from '../data/states_outline.json';
 import { CountyDetail, SelectedCounty } from '../types';
 import CategoricalMapLegend from './CategoricalMapLegend';
+import { select } from 'd3';
 const statesOutline = statesGeoJSON as FeatureCollection;
 
 // Constants
@@ -73,6 +74,8 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
     height: window.innerHeight 
   });
 
+  const [selectedCountyGeoid, setSelectedCountyGeoid] = useState<string | null>(null);
+
   // Calculate initial view state
   const initialViewState = useMemo(() => 
     getInitialViewState(dimensions.width, dimensions.height),
@@ -128,6 +131,11 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
       stroked: true,
       filled: true,
       getFillColor: (d: any) => {
+
+        if (d.properties.geoid_co === selectedCountyGeoid) {
+          return [0, 0, 0, 255]; // Red color
+        }
+
         const color = getColorForValue(d.properties.amount_raised_per_capita);
         const r = parseInt(color.slice(1, 3), 16);
         const g = parseInt(color.slice(3, 5), 16);
@@ -142,13 +150,16 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
       getLineColor: [0, 0, 0, 50],
       lineWidthMinPixels: .25,
       updateTriggers: {
-        getFillColor: [breaks]
+        getFillColor: [selectedCountyGeoid, breaks]
       },
       onClick: (d: any) => {
         setCounty({
           geoid: d.object.properties.geoid_co,
           name: d.object.properties.name_co
         });
+
+        setSelectedCountyGeoid(d.object.properties.geoid_co);
+
       }
     }),
     new GeoJsonLayer({
@@ -160,7 +171,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
       getLineColor: [255, 255, 255, 255],
       lineWidthMinPixels: 1
     }),
-  ], [geojsonData, breaks, getColorForValue]);
+  ], [geojsonData, breaks, getColorForValue, selectedCountyGeoid]);
 
   const onHover = (info: any) => {
     setHoverInfo(info.object ? {
