@@ -12,11 +12,7 @@ import Sidebar from './components/Sidebar';
 import countyGeoJSON from './data/formd_map.json';
 const geojsonData = countyGeoJSON as FeatureCollection;
 
-console.log("County GeoJSON is ", countyGeoJSON);
-
 const BASE_URL = import.meta.env.VITE_BASE_S3_URL;
-
-console.log("Base URL is ", BASE_URL);
 
 export default function App() {
 

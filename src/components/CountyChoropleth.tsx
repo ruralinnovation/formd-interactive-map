@@ -11,6 +11,7 @@ import { FeatureCollection } from 'geojson';
 import statesGeoJSON from '../data/states_outline.json';
 import { CountyDetail, SelectedCounty } from '../types';
 import CategoricalMapLegend from './CategoricalMapLegend';
+import { select } from 'd3';
 const statesOutline = statesGeoJSON as FeatureCollection;
 
 // Constants
@@ -19,7 +20,22 @@ const USA_BOUNDS: [[number, number], [number, number]] = [
   [-66, 49],  // Northeast coordinates
 ];
 
-const dollarFormat = format('$,.0f');
+// const dollarFormat = format('$,.0f');
+const dollarFormat = (value: number) => {
+  if (value < 1000) {
+    return format('$,.0f')(value);
+  }
+  else {
+    return format('$.2s')(value);
+  }
+}
+const bigDollarFormat = (value: number) => {
+  if (value == 0) return "$0";
+  const formatter = format('$.2s');
+  return formatter(value).replace("G", "B");
+};
+const numberFormat = format(',');
+const bigNumberFormat = format('.2s');
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
 // Calculate initial view state based on container size
@@ -57,6 +73,8 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
     width: window.innerWidth, 
     height: window.innerHeight 
   });
+
+  const [selectedCountyGeoid, setSelectedCountyGeoid] = useState<string | null>(null);
 
   // Calculate initial view state
   const initialViewState = useMemo(() => 
@@ -113,6 +131,11 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
       stroked: true,
       filled: true,
       getFillColor: (d: any) => {
+
+        if (d.properties.geoid_co === selectedCountyGeoid) {
+          return [0, 0, 0, 255]; // Red color
+        }
+
         const color = getColorForValue(d.properties.amount_raised_per_capita);
         const r = parseInt(color.slice(1, 3), 16);
         const g = parseInt(color.slice(3, 5), 16);
@@ -127,13 +150,16 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
       getLineColor: [0, 0, 0, 50],
       lineWidthMinPixels: .25,
       updateTriggers: {
-        getFillColor: [breaks]
+        getFillColor: [selectedCountyGeoid, breaks]
       },
       onClick: (d: any) => {
         setCounty({
           geoid: d.object.properties.geoid_co,
           name: d.object.properties.name_co
         });
+
+        setSelectedCountyGeoid(d.object.properties.geoid_co);
+
       }
     }),
     new GeoJsonLayer({
@@ -145,7 +171,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
       getLineColor: [255, 255, 255, 255],
       lineWidthMinPixels: 1
     }),
-  ], [geojsonData, breaks, getColorForValue]);
+  ], [geojsonData, breaks, getColorForValue, selectedCountyGeoid]);
 
   const onHover = (info: any) => {
     setHoverInfo(info.object ? {
@@ -162,24 +188,35 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
         controller={true}
         layers={layers}
         onHover={onHover}
-        getTooltip={({object}) => object && {
-          html: `
-            <div class='tooltip'>
-              <b>${object.properties?.name_co}</b><br/>
-              Amount raised per capita: ${dollarFormat(object.properties?.amount_raised_per_capita)}
-            </div>
-          `,
-          style: {
-            fontSize: '15px',
-            backgroundColor: 'white',
-            border: '1px solid black',
-            borderRadius: '5px',
-            color: 'black',
-            fontFamily: '"Bitter", monospace',
-            marginTop: "7.5px",
-            marginLeft: "7.5px"
+        getTooltip={({ object }) => 
+          object && {
+            html: `
+              <div class='tooltip'>
+                <h4 style="text-decoration: underline; text-decoration-thickness: 5px; text-decoration-color: ${
+                  getColorForValue(object.properties?.amount_raised_per_capita)
+                };">
+                  ${object.properties?.name_co}
+                </h4>
+                <p>
+                  Amount raised per capita: ${dollarFormat(object.properties?.amount_raised_per_capita)}<br/>
+                  Total amount raised: ${bigDollarFormat(object.properties?.total_amount_raised)}<br/>
+                  Funded businesses: ${numberFormat(object.properties?.num_funded_entities)}<br/>
+                  Population: ${bigNumberFormat(object.properties?.pop)}<br/>
+                </p>
+              </div>
+            `,
+            style: {
+              fontSize: '15px',
+              backgroundColor: 'white',
+              border: '1px solid black',
+              borderRadius: '5px',
+              color: 'black',
+              fontFamily: '"Bitter", monospace',
+              marginTop: "7.5px",
+              marginLeft: "7.5px"
+            }
           }
-        }}
+        }
       >
         <Map
           mapStyle="mapbox://styles/mapbox/light-v9"
