@@ -19,7 +19,22 @@ const USA_BOUNDS: [[number, number], [number, number]] = [
   [-66, 49],  // Northeast coordinates
 ];
 
-const dollarFormat = format('$,.0f');
+// const dollarFormat = format('$,.0f');
+const dollarFormat = (value: number) => {
+  if (value < 1000) {
+    return format('$,.0f')(value);
+  }
+  else {
+    return format('$.2s')(value);
+  }
+}
+const bigDollarFormat = (value: number) => {
+  if (value == 0) return "$0";
+  const formatter = format('$.2s');
+  return formatter(value).replace("G", "B");
+};
+const numberFormat = format(',');
+const bigNumberFormat = format('.2s');
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
 // Calculate initial view state based on container size
@@ -162,24 +177,35 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
         controller={true}
         layers={layers}
         onHover={onHover}
-        getTooltip={({object}) => object && {
-          html: `
-            <div class='tooltip'>
-              <b>${object.properties?.name_co}</b><br/>
-              Amount raised per capita: ${dollarFormat(object.properties?.amount_raised_per_capita)}
-            </div>
-          `,
-          style: {
-            fontSize: '15px',
-            backgroundColor: 'white',
-            border: '1px solid black',
-            borderRadius: '5px',
-            color: 'black',
-            fontFamily: '"Bitter", monospace',
-            marginTop: "7.5px",
-            marginLeft: "7.5px"
+        getTooltip={({ object }) => 
+          object && {
+            html: `
+              <div class='tooltip'>
+                <h4 style="text-decoration: underline; text-decoration-thickness: 5px; text-decoration-color: ${
+                  getColorForValue(object.properties?.amount_raised_per_capita)
+                };">
+                  ${object.properties?.name_co}
+                </h4>
+                <p>
+                  Amount raised per capita: ${dollarFormat(object.properties?.amount_raised_per_capita)}<br/>
+                  Total amount raised: ${bigDollarFormat(object.properties?.total_amount_raised)}<br/>
+                  Funded businesses: ${numberFormat(object.properties?.num_funded_entities)}<br/>
+                  Population: ${bigNumberFormat(object.properties?.pop)}<br/>
+                </p>
+              </div>
+            `,
+            style: {
+              fontSize: '15px',
+              backgroundColor: 'white',
+              border: '1px solid black',
+              borderRadius: '5px',
+              color: 'black',
+              fontFamily: '"Bitter", monospace',
+              marginTop: "7.5px",
+              marginLeft: "7.5px"
+            }
           }
-        }}
+        }
       >
         <Map
           mapStyle="mapbox://styles/mapbox/light-v9"
