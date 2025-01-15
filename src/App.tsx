@@ -21,7 +21,7 @@ export default function App() {
 
     const [ruralityFilter, setRuralityFilter] = useState({
       rural: true,
-      nonrural: false,
+      nonrural: true,
     });
 
     useEffect(() => {

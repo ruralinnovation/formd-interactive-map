@@ -26,7 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data, setFilter }) =
 
   const [ruralityFilter, setRuralityFilter] = useState({
     rural: true,
-    nonrural: false,
+    nonrural: true,
   });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
