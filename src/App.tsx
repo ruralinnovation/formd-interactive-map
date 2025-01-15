@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { FeatureCollection } from 'geojson';
+import { FeatureCollection, Feature } from 'geojson';
 
 import { CountyDetail, SelectedCounty } from "./types";
 
@@ -18,6 +18,11 @@ export default function App() {
 
     const [ selectedCounty, setSelectedCounty] = useState<SelectedCounty | null>(null);
     const [ selectedData, setSelectedData ] = useState<CountyDetail[] | null>(null);
+
+    const [ruralityFilter, setRuralityFilter] = useState({
+      rural: true,
+      nonrural: false,
+    });
 
     useEffect(() => {
 
@@ -51,11 +56,13 @@ export default function App() {
     
       }, [selectedCounty]);    
 
+      
+
     return (
         <div>
-            <Sidebar selected_county={selectedCounty} data={selectedData} />
+            <Sidebar selected_county={selectedCounty} data={selectedData} setFilter={setRuralityFilter} />
             <div id="map">
-                <CountyChoropleth geojsonData={geojsonData} setCounty={setSelectedCounty} />
+                <CountyChoropleth geojsonData={geojsonData} setCounty={setSelectedCounty} ruralityFilter={ruralityFilter} />
             </div>
         </div>
     );

@@ -64,10 +64,14 @@ const getInitialViewState = (width: number, height: number) => {
 interface CountyChoroplethProps {
   geojsonData: GeoJSON.FeatureCollection;
   setCounty: React.Dispatch<React.SetStateAction<SelectedCounty | null>>;
+  ruralityFilter: {
+    rural: boolean;
+    nonrural: boolean;
+  }
 }
 
 // Component
-const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCounty }) => {
+const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCounty, ruralityFilter }) => {
 
   const [dimensions, setDimensions] = useState({ 
     width: window.innerWidth, 
@@ -123,55 +127,79 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const layers = useMemo(() => [
-    new GeoJsonLayer({
-      id: 'counties',
-      data: geojsonData,
-      pickable: true,
-      stroked: true,
-      filled: true,
-      getFillColor: (d: any) => {
+  const filterRurality = (feature: Feature) => {
 
-        if (d.properties.geoid_co === selectedCountyGeoid) {
-          return [0, 0, 0, 255]; // Red color
+    if (ruralityFilter.rural === true && ruralityFilter.nonrural === true) {
+      return true;
+    }
+    else if (ruralityFilter.rural === true) {
+      return feature.properties && feature.properties.rurality === 'Nonmetro';
+    }
+    else if (ruralityFilter.nonrural === true) {
+      return feature.properties && feature.properties.rurality === 'Metro';
+    }
+    else {
+      return false
+    }
+  }
+
+  const layers = useMemo(() => {
+
+    const filteredGeoJSON = {
+      ...geojsonData,
+      features: geojsonData.features.filter(filterRurality),
+    };
+
+    return [
+      new GeoJsonLayer({
+        id: 'counties',
+        data: filteredGeoJSON,
+        pickable: true,
+        stroked: true,
+        filled: true,
+        getFillColor: (d: any) => {
+
+          if (d.properties.geoid_co === selectedCountyGeoid) {
+            return [0, 0, 0, 255]; // Red color
+          }
+
+          const color = getColorForValue(d.properties.amount_raised_per_capita);
+          const r = parseInt(color.slice(1, 3), 16);
+          const g = parseInt(color.slice(3, 5), 16);
+          const b = parseInt(color.slice(5, 7), 16);
+          return [r, g, b, 200];
+        },
+        // extruded: true,
+        // wireframe: true,
+        // getElevation: (d: any) => Math.sqrt(d.properties.amount_raised_per_capita) * 10,
+        autoHighlight: true,
+        highlightColor: [255, 165, 0, 255],
+        getLineColor: [0, 0, 0, 50],
+        lineWidthMinPixels: .25,
+        updateTriggers: {
+          getFillColor: [selectedCountyGeoid, breaks]
+        },
+        onClick: (d: any) => {
+          setCounty({
+            geoid: d.object.properties.geoid_co,
+            name: d.object.properties.name_co
+          });
+
+          setSelectedCountyGeoid(d.object.properties.geoid_co);
+
         }
-
-        const color = getColorForValue(d.properties.amount_raised_per_capita);
-        const r = parseInt(color.slice(1, 3), 16);
-        const g = parseInt(color.slice(3, 5), 16);
-        const b = parseInt(color.slice(5, 7), 16);
-        return [r, g, b, 200];
-      },
-      // extruded: true,
-      // wireframe: true,
-      // getElevation: (d: any) => Math.sqrt(d.properties.amount_raised_per_capita) * 10,
-      autoHighlight: true,
-      highlightColor: [255, 165, 0, 255],
-      getLineColor: [0, 0, 0, 50],
-      lineWidthMinPixels: .25,
-      updateTriggers: {
-        getFillColor: [selectedCountyGeoid, breaks]
-      },
-      onClick: (d: any) => {
-        setCounty({
-          geoid: d.object.properties.geoid_co,
-          name: d.object.properties.name_co
-        });
-
-        setSelectedCountyGeoid(d.object.properties.geoid_co);
-
-      }
-    }),
-    new GeoJsonLayer({
-      id: 'states',
-      data: statesOutline,
-      pickable: false,
-      stroked: true,
-      filled: false,
-      getLineColor: [255, 255, 255, 255],
-      lineWidthMinPixels: 1
-    }),
-  ], [geojsonData, breaks, getColorForValue, selectedCountyGeoid]);
+      }),
+      new GeoJsonLayer({
+        id: 'states',
+        data: statesOutline,
+        pickable: false,
+        stroked: true,
+        filled: false,
+        getLineColor: [255, 255, 255, 255],
+        lineWidthMinPixels: 1
+      }),
+    ]
+  }, [geojsonData, breaks, getColorForValue, selectedCountyGeoid, ruralityFilter]);
 
   const onHover = (info: any) => {
     setHoverInfo(info.object ? {

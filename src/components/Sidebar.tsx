@@ -1,14 +1,21 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import style from './styles/Sidebar.module.css';
 import { CountyDetail, SelectedCounty } from '../types';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 import { sort } from 'd3';
 
 interface SidebarProps {
   selected_county: SelectedCounty | null;
   data: CountyDetail[] | null;
+  setFilter:  React.Dispatch<React.SetStateAction<{
+      rural: boolean;
+      nonrural: boolean;
+  }>>
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ selected_county, data }) => {
+const Sidebar: React.FC<SidebarProps> = ({ selected_county, data, setFilter }) => {
 
   const sortedData = useMemo(() => {
     if (data) {
@@ -16,6 +23,24 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data }) => {
     }
     return null;
   }, [data]);
+
+  const [ruralityFilter, setRuralityFilter] = useState({
+    rural: true,
+    nonrural: false,
+  });
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRuralityFilter({
+      ...ruralityFilter,
+      [event.target.name]: event.target.checked,
+    });
+    setFilter({
+      ...ruralityFilter,
+      [event.target.name]: event.target.checked,
+    });
+  };  
+
+  console.log("rurality filter is ", ruralityFilter);
 
   return (
     <div className={style['sidebar']}>
@@ -30,6 +55,30 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data }) => {
           filings since 2010 to better understand geographic trends in 
           startup funding.
         </p>
+        <div className={style['controls']}>
+          <FormGroup row>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={ruralityFilter.rural}
+                  onChange={handleChange}
+                  name="rural"
+                />
+              }
+              label="Rural"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={ruralityFilter.nonrural}
+                  onChange={handleChange}
+                  name="nonrural"
+                />
+              }
+              label="Nonrural"
+            />
+          </FormGroup>
+        </div>
         <hr />
       </div>
       {selected_county ? (
