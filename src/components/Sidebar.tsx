@@ -19,12 +19,26 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data }) => {
 
   return (
     <div className={style['sidebar']}>
+      <div className={style['intro']}>
+        <h1>Rural Startup Funding Map</h1>
+        <p>
+          Companies that raise capital through a Regulation D investment 
+          must submit a Form D filing after the first securities are sold. 
+          Regulation D governs capital-raising events that involve 
+          the sale of securities to a relatively small number 
+          of (often accredited) investors. Use the map to explore Form D 
+          filings since 2010 to better understand geographic trends in 
+          startup funding.
+        </p>
+        <hr />
+      </div>
       {selected_county ? (
         <h2>{selected_county.name}</h2>
       ) : (
         <p>Click a county to view more detailed information</p>
       )}
 
+      <div className={style['county-detail-wrapper']}>
       {sortedData && sortedData.length > 0 ? (
         sortedData.map((county, index) => (
           <div key={index} className={style['county-detail']}>
@@ -50,7 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data }) => {
       ) : selected_county ? (
         <p>No data available for the selected county</p>
       ) : null}
-
+      </div>
     </div>
   );
 };

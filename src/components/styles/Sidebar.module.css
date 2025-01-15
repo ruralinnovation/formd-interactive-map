@@ -1,7 +1,7 @@
 .sidebar {
-
   position: fixed;
-  display: block;
+  display: flex; /* Use flex for better layout management */
+  flex-direction: column;
 
   top: 20px;
   left: 15px;
@@ -12,20 +12,51 @@
 
   z-index: 3;
 
+  overflow: scroll;
+
   background-color: white;
 
   padding: 20px;
-  box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, .2);
-  
+  box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.2);
+
   border-radius: 10px;
+}
 
-  overflow: scroll;
+.sidebar-intro {
+  position: sticky;
+  top: 0;
+  z-index: 2; /* Ensures it stays above other content */
+  background-color: white; /* Prevents content overlap */
+  margin-bottom: 10px; /* Space below intro section */
+}
 
+.sidebar hr {
+  border: none;
+  height: 0.5px;
+  background-color: #d0d2ce;
+  margin: 0;
+}
+
+
+.sidebar h1 {
+  font-size: 1.6em;
+  margin: 0 0 0.5em 0;
 }
 
 .sidebar h2 {
-  margin-bottom: .8em;
+  margin-bottom: 0.8em;
+  margin-top: 0.8em;
   font-size: 1.4em;
+}
+
+.sidebar p {
+  margin: 1em 0em 1em 0em;
+}
+
+.county-detail-wrapper {
+  overflow-y: auto; /* Vertical scrolling */
+  flex: 1; /* Ensures this section takes up remaining height in the sidebar */
+  max-height: calc(90vh - 40px); /* Ensure scrolling doesn't exceed sidebar's max height */
 }
 
 .county-detail {
@@ -51,7 +82,7 @@
 
 .county-table td {
   padding: 8px 10px;
-  font-size: .9em;
+  font-size: 0.9em;
   font-weight: normal;
   color: #555;
   border-top: 1px solid #ddd;
