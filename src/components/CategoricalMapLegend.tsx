@@ -24,7 +24,7 @@ const CategoricalMapLegend: React.FC<CategoricalMapLegendProps> = ({ breaks, col
             ></div>
             <span className={style['legend-label']}>
               {index === 0
-                ? `≤ ${formatValue(breakValue)}`
+                ? `${formatValue(breakValue)}`
                 : `${formatValue(breaks[index - 1] + 1)} - ${formatValue(breakValue)}`}
             </span>
           </div>
