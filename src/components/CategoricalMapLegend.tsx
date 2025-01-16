@@ -14,7 +14,8 @@ const CategoricalMapLegend: React.FC<CategoricalMapLegendProps> = ({ breaks, col
 
   return (
     <div className={style['legend-container']}>
-      <h4>Amount Raised per Capita</h4>
+      <h4>Amount raised per capita</h4>
+      <p><em>2010-2024</em></p>
       <div className={style['legend-items']}>
         {breaks.map((breakValue, index) => (
           <div key={index} className={style['legend-item']}>
@@ -23,9 +24,18 @@ const CategoricalMapLegend: React.FC<CategoricalMapLegendProps> = ({ breaks, col
               style={{ backgroundColor: colors[index] }}
             ></div>
             <span className={style['legend-label']}>
-              {index === 0
-                ? `≤ ${formatValue(breakValue)}`
-                : `${formatValue(breaks[index - 1] + 1)} - ${formatValue(breakValue)}`}
+              {(() => {
+                if (index === 0) {
+                  return `${formatValue(breakValue)}`;
+                } 
+                // Last category is all greater than the final value
+                else if (index == (breaks.length - 1)) {
+                  return `>${formatValue(breakValue)}`;
+                }
+                else {
+                  return `${formatValue(breaks[index - 1] + 1)} - ${formatValue(breakValue)}`;
+                }
+              })()}
             </span>
           </div>
         ))}

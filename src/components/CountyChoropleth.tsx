@@ -4,15 +4,13 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import { Map } from 'react-map-gl';
 import { WebMercatorViewport, PickingInfo } from '@deck.gl/core';
 import { Feature } from 'geojson';
-import { format } from 'd3-format';
-import { jenks } from 'simple-statistics';
 import { FeatureCollection } from 'geojson';
 
 import statesGeoJSON from '../data/states_outline.json';
 import { CountyDetail, SelectedCounty } from '../types';
 import CategoricalMapLegend from './CategoricalMapLegend';
-import { select } from 'd3';
 const statesOutline = statesGeoJSON as FeatureCollection;
+import { bigDollarFormat, bigNumberFormat, dollarFormat, numberFormat } from './utils';
 
 // Constants
 const USA_BOUNDS: [[number, number], [number, number]] = [
@@ -20,22 +18,6 @@ const USA_BOUNDS: [[number, number], [number, number]] = [
   [-66, 49],  // Northeast coordinates
 ];
 
-// const dollarFormat = format('$,.0f');
-const dollarFormat = (value: number) => {
-  if (value < 1000) {
-    return format('$,.0f')(value);
-  }
-  else {
-    return format('$.2s')(value);
-  }
-}
-const bigDollarFormat = (value: number) => {
-  if (value == 0) return "$0";
-  const formatter = format('$.2s');
-  return formatter(value).replace("G", "B");
-};
-const numberFormat = format(',');
-const bigNumberFormat = format('.2s');
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
 // Calculate initial view state based on container size
@@ -60,14 +42,68 @@ const getInitialViewState = (width: number, height: number) => {
 
 };
 
+const map_colors = [
+  "#ECF5EF", '#a3e2b5', '#77bf96', '#519c7a', '#337962', '#1f564e', '#16343e'
+]
+
+const map_breaks = [
+  0,
+  1000,
+  5000,
+  10000,
+  15000,
+  25000
+]
+
+const convertHexToRGBA = (color: string): [number, number, number, number] => {
+
+  const r = parseInt(color.slice(1, 3), 16);
+  const g = parseInt(color.slice(3, 5), 16);
+  const b = parseInt(color.slice(5, 7), 16);
+
+  return [r, g, b, 230];
+
+}
+
+const getMapColor = (value: number, return_hex: boolean = false): string => {
+
+  if (value === 0) {
+    return map_colors[0];
+  }
+  else if (value < 1000) {
+    return map_colors[1];
+  }
+  else if (value < 5000) {
+    return map_colors[2];
+  }
+  else if (value < 10000) {
+    return map_colors[3];
+  }
+  else if (value < 15000) {
+    return map_colors[4];
+  }
+  else if (value < 25000) {
+    return map_colors[5];
+  }
+  else {
+    return map_colors[6];
+  }
+
+
+}
+
 // Props type
 interface CountyChoroplethProps {
   geojsonData: GeoJSON.FeatureCollection;
   setCounty: React.Dispatch<React.SetStateAction<SelectedCounty | null>>;
+  ruralityFilter: {
+    rural: boolean;
+    nonrural: boolean;
+  }
 }
 
 // Component
-const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCounty }) => {
+const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCounty, ruralityFilter }) => {
 
   const [dimensions, setDimensions] = useState({ 
     width: window.innerWidth, 
@@ -88,28 +124,6 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
     y: number;
   } | null>(null);
 
-  // Memoize color calculations
-  const { breaks, getColorForValue } = useMemo(() => {
-    const scale_dta = geojsonData.features.map(
-      (feature) => feature.properties?.amount_raised_per_capita
-    );
-    const numClasses = 5;
-    const breaks = jenks(scale_dta, numClasses);
-    const colors = ['#ECF5EF', '#A3D9C5', '#7DBAA3', '#46827E', '#245A61', '#16343E'];
-
-    const getColorForValue = (value: number) => {
-      for (let i = 0; i < breaks.length; i++) {
-        if (value <= breaks[i]) {
-          return colors[i];
-        }
-      }
-      return colors[colors.length - 1];
-    };
-
-    return { breaks, getColorForValue };
-
-  }, [geojsonData]);
-
   // Update dimensions on resize
   useEffect(() => {
     const handleResize = () => {
@@ -123,55 +137,82 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const layers = useMemo(() => [
-    new GeoJsonLayer({
-      id: 'counties',
-      data: geojsonData,
-      pickable: true,
-      stroked: true,
-      filled: true,
-      getFillColor: (d: any) => {
+  const filterRurality = (feature: Feature) => {
 
-        if (d.properties.geoid_co === selectedCountyGeoid) {
-          return [0, 0, 0, 255]; // Red color
+    if (ruralityFilter.rural === true && ruralityFilter.nonrural === true) {
+      return true;
+    }
+    else if (ruralityFilter.rural === true) {
+      return feature.properties && feature.properties.rurality === 'Nonmetro';
+    }
+    else if (ruralityFilter.nonrural === true) {
+      return feature.properties && feature.properties.rurality === 'Metro';
+    }
+    else {
+      return false
+    }
+  }
+
+  const layers = useMemo(() => {
+
+    const filteredGeoJSON = {
+      ...geojsonData,
+      features: geojsonData.features.filter(filterRurality),
+    };
+
+    return [
+      new GeoJsonLayer({
+        id: 'counties',
+        data: filteredGeoJSON,
+        pickable: true,
+        stroked: true,
+        filled: true,
+        getFillColor: (d: any) => {
+
+          if (d.properties.geoid_co === selectedCountyGeoid) {
+            return [255, 228, 115, 255]; // Red color
+          }
+
+          const hex_color: string = getMapColor(d.properties.amount_raised_per_capita);
+          const color: [number, number, number, number] = convertHexToRGBA(hex_color);
+
+          return color;
+
+        },
+        autoHighlight: true,
+        highlightColor: [250, 128, 74, 255],
+        getLineColor: [0, 0, 0, 50],
+        lineWidthMinPixels: .25,
+        updateTriggers: {
+          getFillColor: [selectedCountyGeoid]
+        },
+        onClick: (d: any) => {
+
+          setCounty({
+            geoid: d.object.properties.geoid_co,
+            name: d.object.properties.name_co,
+            amount_raised_per_capita: d.object.properties.amount_raised_per_capita,
+            total_amount_raised:  d.object.properties.total_amount_raised,
+            num_funded_entities:  d.object.properties.num_funded_entities,
+            pop:  d.object.properties.pop,
+            rurality: d.object.properties.rurality
+          });
+
+          setSelectedCountyGeoid(d.object.properties.geoid_co);
+
         }
-
-        const color = getColorForValue(d.properties.amount_raised_per_capita);
-        const r = parseInt(color.slice(1, 3), 16);
-        const g = parseInt(color.slice(3, 5), 16);
-        const b = parseInt(color.slice(5, 7), 16);
-        return [r, g, b, 200];
-      },
-      // extruded: true,
-      // wireframe: true,
-      // getElevation: (d: any) => Math.sqrt(d.properties.amount_raised_per_capita) * 10,
-      autoHighlight: true,
-      highlightColor: [255, 165, 0, 255],
-      getLineColor: [0, 0, 0, 50],
-      lineWidthMinPixels: .25,
-      updateTriggers: {
-        getFillColor: [selectedCountyGeoid, breaks]
-      },
-      onClick: (d: any) => {
-        setCounty({
-          geoid: d.object.properties.geoid_co,
-          name: d.object.properties.name_co
-        });
-
-        setSelectedCountyGeoid(d.object.properties.geoid_co);
-
-      }
-    }),
-    new GeoJsonLayer({
-      id: 'states',
-      data: statesOutline,
-      pickable: false,
-      stroked: true,
-      filled: false,
-      getLineColor: [255, 255, 255, 255],
-      lineWidthMinPixels: 1
-    }),
-  ], [geojsonData, breaks, getColorForValue, selectedCountyGeoid]);
+      }),
+      new GeoJsonLayer({
+        id: 'states',
+        data: statesOutline,
+        pickable: false,
+        stroked: true,
+        filled: false,
+        getLineColor: [255, 255, 255, 255],
+        lineWidthMinPixels: 1
+      }),
+    ]
+  }, [geojsonData, selectedCountyGeoid, ruralityFilter]);
 
   const onHover = (info: any) => {
     setHoverInfo(info.object ? {
@@ -193,7 +234,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
             html: `
               <div class='tooltip'>
                 <h4 style="text-decoration: underline; text-decoration-thickness: 5px; text-decoration-color: ${
-                  getColorForValue(object.properties?.amount_raised_per_capita)
+                  getMapColor(object.properties?.amount_raised_per_capita, true)
                 };">
                   ${object.properties?.name_co}
                 </h4>
@@ -224,7 +265,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
           reuseMaps
         />
       </DeckGL>
-      <CategoricalMapLegend breaks={breaks} colors={['#ECF5EF', '#A3D9C5', '#7DBAA3', '#46827E', '#245A61', '#16343E']} />
+      <CategoricalMapLegend breaks={map_breaks} colors={map_colors} />
     </div>
   );
 };

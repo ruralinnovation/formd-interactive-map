@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { FeatureCollection } from 'geojson';
+import { FeatureCollection, Feature } from 'geojson';
 
 import { CountyDetail, SelectedCounty } from "./types";
 
@@ -14,10 +14,31 @@ const geojsonData = countyGeoJSON as FeatureCollection;
 
 const BASE_URL = import.meta.env.VITE_BASE_S3_URL;
 
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme({
+  typography: {
+      fontFamily: 'Bitter',
+  },
+  palette: {
+      primary: {
+          main: '#00835D',
+          light: '#A3E2B5',
+          dark: '#26535C',
+          contrastText: 'white',
+      },
+  },
+});
+
 export default function App() {
 
     const [ selectedCounty, setSelectedCounty] = useState<SelectedCounty | null>(null);
     const [ selectedData, setSelectedData ] = useState<CountyDetail[] | null>(null);
+
+    const [ruralityFilter, setRuralityFilter] = useState({
+      rural: true,
+      nonrural: true,
+    });
 
     useEffect(() => {
 
@@ -51,12 +72,16 @@ export default function App() {
     
       }, [selectedCounty]);    
 
+      
+
     return (
         <div>
-            <Sidebar selected_county={selectedCounty} data={selectedData} />
-            <div id="map">
-                <CountyChoropleth geojsonData={geojsonData} setCounty={setSelectedCounty} />
-            </div>
+            <ThemeProvider theme={theme}>
+              <Sidebar selected_county={selectedCounty} data={selectedData} setFilter={setRuralityFilter} />
+              <div id="map">
+                  <CountyChoropleth geojsonData={geojsonData} setCounty={setSelectedCounty} ruralityFilter={ruralityFilter} />
+              </div>
+            </ThemeProvider>
         </div>
     );
 }

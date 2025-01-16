@@ -1,47 +1,125 @@
 .sidebar {
-
   position: fixed;
-  display: block;
+  display: flex; /* Use flex for better layout management */
+  flex-direction: column;
 
   top: 20px;
   left: 15px;
 
   width: 460px;
   height: auto;
-  max-height: 90vh;
+  max-height: calc(100vh - 50px);
 
   z-index: 3;
+
+  overflow: scroll;
 
   background-color: white;
 
   padding: 20px;
-  box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, .2);
-  
+  box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.2);
+
   border-radius: 10px;
+} 
 
-  overflow: scroll;
+.sidebar-intro {
+  /* position: sticky;
+  top: 0; */
+  z-index: 2; /* Ensures it stays above other content */
+  background-color: white; /* Prevents content overlap */
+  margin-bottom: 10px; /* Space below intro section */
+}
 
+.sidebar .download-csv-button {
+  text-align: left;
+  font-style: italic;
+
+  font-size: 1em;
+
+  margin-bottom: 20px;
+}
+
+.sidebar hr {
+  border: none;
+  height: 0.5px;
+  background-color: #d0d2ce;
+  margin: 10px 0px 15px 0px;
+}
+
+
+.sidebar h1 {
+  font-size: 1.6em;
+  margin: 0 0 0.5em 0;
 }
 
 .sidebar h2 {
-  margin-bottom: .8em;
+  margin-bottom: 0em;
+  margin-top: 0.5em;
   font-size: 1.4em;
+
+  text-decoration: underline;
+  text-decoration-thickness: 5px;
+  text-decoration-color: #FFE473;
 }
+
+.sidebar p {
+  margin: 1em 0em 1em 0em;
+}
+
+/* .county-detail-wrapper {
+  overflow-y: auto; 
+  flex: 1; 
+  max-height: calc(90vh - 40px);
+} 
+*/
 
 .county-detail {
   margin-bottom: 20px;
   padding: 10px;
-  background-color: #ffffff;
+  background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 6px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.county-detail h3 {
-  margin: 0 0 10px;
-  font-size: 1em;
-  color: #333;
+.sidebar h3 {
+  margin: 0px 0px 10px 0px;
+  font-size: 1.2em;
   font-weight: 600;
+
+  color: #26535C;
+}
+
+.county-detail h4 {
+  margin: 0 0 10px;
+  font-size: .9em;
+  font-weight: 600;
+}
+
+.county-overview-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0px 20px 0px;
+}
+
+.county-overview-table td {
+  padding: 8px 0px;
+  font-size: 0.9em;
+  font-weight: normal;
+  color: #555;
+  border-top: 1px solid #ddd;
+}
+
+.county-overview-table tr:first-child td {
+  border-top: none;
+}
+
+.county-overview-table td:first-child {
+  text-align: left;
+}
+
+.county-overview-table td:last-child {
+  text-align: right;
 }
 
 .county-table {
@@ -50,8 +128,8 @@
 }
 
 .county-table td {
-  padding: 8px 10px;
-  font-size: .9em;
+  padding: 8px 0px;
+  font-size: 0.9em;
   font-weight: normal;
   color: #555;
   border-top: 1px solid #ddd;
@@ -62,7 +140,6 @@
 }
 
 .county-table td:first-child {
-  color: #333;
   text-align: left;
 }
 
