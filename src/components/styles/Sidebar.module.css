@@ -8,7 +8,7 @@
 
   width: 460px;
   height: auto;
-  max-height: 90vh;
+  max-height: calc(100vh - 50px);
 
   z-index: 3;
 
@@ -20,11 +20,11 @@
   box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.2);
 
   border-radius: 10px;
-}
+} 
 
 .sidebar-intro {
-  position: sticky;
-  top: 0;
+  /* position: sticky;
+  top: 0; */
   z-index: 2; /* Ensures it stays above other content */
   background-color: white; /* Prevents content overlap */
   margin-bottom: 10px; /* Space below intro section */
@@ -34,7 +34,7 @@
   border: none;
   height: 0.5px;
   background-color: #d0d2ce;
-  margin: 0;
+  margin: 10px 0px 5px 0px;
 }
 
 
@@ -53,11 +53,12 @@
   margin: 1em 0em 1em 0em;
 }
 
-.county-detail-wrapper {
-  overflow-y: auto; /* Vertical scrolling */
-  flex: 1; /* Ensures this section takes up remaining height in the sidebar */
-  max-height: calc(90vh - 40px); /* Ensure scrolling doesn't exceed sidebar's max height */
-}
+/* .county-detail-wrapper {
+  overflow-y: auto; 
+  flex: 1; 
+  max-height: calc(90vh - 40px);
+} 
+*/
 
 .county-detail {
   margin-bottom: 20px;

@@ -60,13 +60,14 @@ const getInitialViewState = (width: number, height: number) => {
 };
 
 const map_colors = [
-  "#ffffff",
-  "#f6eff7",
-  "#d0d1e6",
-  "#a6bddb",
-  "#67a9cf",
-  "#1c9099",
-  "#016c59"
+  "#ECF5EF", // '#16343e', '#1f564e', '#337962', '#519c7a', '#77bf96', '#a3e2b5'
+  '#a3e2b5', '#77bf96', '#519c7a', '#337962', '#1f564e', '#16343e'
+  // "#f6eff7",
+  // "#d0d1e6",
+  // "#a6bddb",
+  // "#67a9cf",
+  // "#1c9099",
+  // "#016c59"
 ]
 
 const map_breaks = [
@@ -280,7 +281,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
         }
       >
         <Map
-          mapStyle="mapbox://styles/ruralinno/ckuocnzew2kdb17qycqtabl3y"
+          mapStyle="mapbox://styles/mapbox/light-v10"
           mapboxAccessToken={MAPBOX_TOKEN}
           reuseMaps
         />

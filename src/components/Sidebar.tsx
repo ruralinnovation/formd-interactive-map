@@ -56,6 +56,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data, setFilter }) =
           startup funding.
         </p>
         <div className={style['controls']}>
+          <span><b>Filter counties by rurality</b></span>
           <FormGroup row>
             <FormControlLabel
               control={

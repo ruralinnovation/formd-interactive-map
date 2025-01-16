@@ -14,6 +14,22 @@ const geojsonData = countyGeoJSON as FeatureCollection;
 
 const BASE_URL = import.meta.env.VITE_BASE_S3_URL;
 
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+const theme = createTheme({
+  typography: {
+      fontFamily: 'Bitter',
+  },
+  palette: {
+      primary: {
+          main: '#00835D',
+          light: '#A3E2B5',
+          dark: '#26535C',
+          contrastText: 'white',
+      },
+  },
+});
+
 export default function App() {
 
     const [ selectedCounty, setSelectedCounty] = useState<SelectedCounty | null>(null);
@@ -60,10 +76,12 @@ export default function App() {
 
     return (
         <div>
-            <Sidebar selected_county={selectedCounty} data={selectedData} setFilter={setRuralityFilter} />
-            <div id="map">
-                <CountyChoropleth geojsonData={geojsonData} setCounty={setSelectedCounty} ruralityFilter={ruralityFilter} />
-            </div>
+            <ThemeProvider theme={theme}>
+              <Sidebar selected_county={selectedCounty} data={selectedData} setFilter={setRuralityFilter} />
+              <div id="map">
+                  <CountyChoropleth geojsonData={geojsonData} setCounty={setSelectedCounty} ruralityFilter={ruralityFilter} />
+              </div>
+            </ThemeProvider>
         </div>
     );
 }
