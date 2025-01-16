@@ -10,4 +10,9 @@ export interface CountyDetail {
 export interface SelectedCounty {
   name: string;
   geoid: string;
+  amount_raised_per_capita: number;
+  total_amount_raised: number;
+  num_funded_entities: number;
+  pop: number;
+  rurality: string;
 }

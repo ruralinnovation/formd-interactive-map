@@ -4,7 +4,8 @@ import { CountyDetail, SelectedCounty } from '../types';
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import { sort } from 'd3';
+
+import { bigDollarFormat, bigNumberFormat, dollarFormat, numberFormat } from './utils';
 
 interface SidebarProps {
   selected_county: SelectedCounty | null;
@@ -85,19 +86,41 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data, setFilter }) =
       {selected_county ? (
         <>
           <h2>{selected_county.name}</h2>
-          <p>
-            Businesses raising private capital: {sortedData?.length.toLocaleString('en-US')}
-          </p>
+          <table className={style['county-overview-table']}>
+            <tbody>
+              <tr>
+                <td>Amount raised per capita</td>
+                <td><b>{dollarFormat(selected_county.amount_raised_per_capita)}</b></td>
+              </tr>
+              <tr>
+                <td>Total amount raised</td>
+                <td><b>{bigDollarFormat(selected_county.total_amount_raised)}</b></td>
+              </tr>
+              <tr>
+                <td>Funded businesses</td>
+                <td><b>{numberFormat(selected_county.num_funded_entities)}</b></td>
+              </tr>
+              <tr>
+                <td>Population</td>
+                <td><b>{bigNumberFormat(selected_county.pop)}</b></td>
+              </tr>
+            </tbody>
+          </table>
+          {
+            selected_county.num_funded_entities > 0? 
+            <h3>County business detail</h3>: 
+            <></>
+          }
         </>
       ) : (
-        <p>Click a county to view more detailed information</p>
+        <span><em>Click a county to view more detailed information</em></span>
       )}
 
       <div className={style['county-detail-wrapper']}>
         {sortedData && sortedData.length > 0 ? (
           sortedData.map((county, index) => (
             <div key={index} className={style['county-detail']}>
-              <h3>{county.entity_name}</h3>
+              <h4>{county.entity_name}</h4>
               <table className={style['county-table']}>
                 <tbody>
                   <tr>
