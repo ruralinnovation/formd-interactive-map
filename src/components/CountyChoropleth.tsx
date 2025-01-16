@@ -280,7 +280,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
         }
       >
         <Map
-          mapStyle="mapbox://styles/mapbox/dark-v9"
+          mapStyle="mapbox://styles/ruralinno/ckuocnzew2kdb17qycqtabl3y"
           mapboxAccessToken={MAPBOX_TOKEN}
           reuseMaps
         />
