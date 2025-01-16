@@ -5,7 +5,7 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 
-import { bigDollarFormat, bigNumberFormat, dollarFormat, numberFormat } from './utils';
+import { bigDollarFormat, bigNumberFormat, dollarFormat, numberFormat, downloadJSONAsCSV } from './utils';
 
 interface SidebarProps {
   selected_county: SelectedCounty | null;
@@ -104,11 +104,25 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data, setFilter }) =
                 <td>Population</td>
                 <td><b>{bigNumberFormat(selected_county.pop)}</b></td>
               </tr>
+              <tr>
+                <td>Rurality</td>
+                <td><b>{selected_county.rurality}</b></td>
+              </tr>
             </tbody>
           </table>
           {
             selected_county.num_funded_entities > 0? 
-            <h3>County business detail</h3>: 
+            <>
+              <h3>County business detail</h3>
+              <button className={style['download-csv-button']} onClick={
+                () => downloadJSONAsCSV(
+                  sortedData!!,
+                  "formd_business_2010_2014_" + selected_county.geoid + ".csv"
+                  )}>
+                Click here to download county Form D data
+              </button>
+            </>
+            : 
             <></>
           }
         </>

@@ -170,7 +170,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
         getFillColor: (d: any) => {
 
           if (d.properties.geoid_co === selectedCountyGeoid) {
-            return [0, 0, 0, 255]; // Red color
+            return [255, 228, 115, 255]; // Red color
           }
 
           const hex_color: string = getMapColor(d.properties.amount_raised_per_capita);
@@ -180,15 +180,13 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
 
         },
         autoHighlight: true,
-        highlightColor: [255, 165, 0, 255],
+        highlightColor: [250, 128, 74, 255],
         getLineColor: [0, 0, 0, 50],
         lineWidthMinPixels: .25,
         updateTriggers: {
           getFillColor: [selectedCountyGeoid]
         },
         onClick: (d: any) => {
-
-          console.log("What is in D here: ", d);
 
           setCounty({
             geoid: d.object.properties.geoid_co,
@@ -262,7 +260,7 @@ const CountyChoropleth: React.FC<CountyChoroplethProps> = ({ geojsonData, setCou
         }
       >
         <Map
-          mapStyle="mapbox://styles/mapbox/light-v10"
+          mapStyle="mapbox://styles/mapbox/light-v9"
           mapboxAccessToken={MAPBOX_TOKEN}
           reuseMaps
         />

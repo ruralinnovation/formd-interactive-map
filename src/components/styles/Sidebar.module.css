@@ -30,6 +30,15 @@
   margin-bottom: 10px; /* Space below intro section */
 }
 
+.sidebar .download-csv-button {
+  text-align: left;
+  font-style: italic;
+
+  font-size: 1em;
+
+  margin-bottom: 20px;
+}
+
 .sidebar hr {
   border: none;
   height: 0.5px;
@@ -47,6 +56,10 @@
   margin-bottom: 0em;
   margin-top: 0.5em;
   font-size: 1.4em;
+
+  text-decoration: underline;
+  text-decoration-thickness: 5px;
+  text-decoration-color: #FFE473;
 }
 
 .sidebar p {
@@ -70,7 +83,7 @@
 }
 
 .sidebar h3 {
-  margin: 0 0 15px 0px;
+  margin: 0px 0px 10px 0px;
   font-size: 1.2em;
   font-weight: 600;
 
