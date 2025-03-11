@@ -124,3 +124,15 @@ a:hover {
   font-family: "Montserrat", "TT Hoves", sans-serif;
   font-weight: normal;
 }
+
+a,
+a:visited {
+  color: #00835D;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+a:hover {
+  opacity: .7;
+}
+  

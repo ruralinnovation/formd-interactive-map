@@ -6,7 +6,8 @@
   top: 20px;
   left: 15px;
 
-  width: 460px;
+  max-width: 460px;
+  width: calc(100vw - 30px);
   height: auto;
   max-height: calc(100vh - 50px);
 
@@ -145,4 +146,20 @@
 
 .county-table td:last-child {
   text-align: right;
+}
+
+@media (max-width: 700px) {
+
+  .sidebar {
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
+
+    top: 0px;
+    left: 0px;
+    
+  }
+
 }

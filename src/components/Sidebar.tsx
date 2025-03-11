@@ -46,15 +46,15 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data, setFilter }) =
   return (
     <div className={style['sidebar']}>
       <div className={style['intro']}>
-        <h1>Rural Startup Funding Map</h1>
+        <h1>Rural Private Investment Map</h1>
         <p>
           Companies that raise capital through a Regulation D investment 
-          must submit a Form D filing after the first securities are sold. 
+          must submit a <a href="https://www.sec.gov/resources-small-businesses/capital-raising-building-blocks/form-d" target="_blank">Form D filing</a> after the first securities are sold. 
           Regulation D governs capital-raising events that involve 
           the sale of securities to a relatively small number 
           of (often accredited) investors. Use the map to explore Form D 
           filings since 2010 to better understand geographic trends in 
-          startup funding.
+          private investment.
         </p>
         <div className={style['controls']}>
           <span><b>Filter counties by rurality</b></span>
@@ -113,7 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data, setFilter }) =
           {
             selected_county.num_funded_entities > 0? 
             <>
-              <h3>County business detail</h3>
+              <h3>County filings</h3>
               <button className={style['download-csv-button']} onClick={
                 () => downloadJSONAsCSV(
                   sortedData!!,

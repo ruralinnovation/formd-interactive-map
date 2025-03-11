@@ -45,3 +45,10 @@
   font-size: .8em;
   color: #333;
 }
+
+@media (max-width: 700px) {
+
+  .legend-container {
+    display: none;
+  }
+}

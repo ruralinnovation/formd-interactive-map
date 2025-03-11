@@ -77,10 +77,10 @@ export default function App() {
     return (
         <div>
             <ThemeProvider theme={theme}>
-              <Sidebar selected_county={selectedCounty} data={selectedData} setFilter={setRuralityFilter} />
               <div id="map">
                   <CountyChoropleth geojsonData={geojsonData} setCounty={setSelectedCounty} ruralityFilter={ruralityFilter} />
               </div>
+              <Sidebar selected_county={selectedCounty} data={selectedData} setFilter={setRuralityFilter} />
             </ThemeProvider>
         </div>
     );
