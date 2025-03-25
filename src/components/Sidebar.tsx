@@ -55,6 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selected_county, data, setFilter }) =
           of (often accredited) investors. Use the map to explore Form D 
           filings since 2010 to better understand geographic trends in 
           private investment.
+          <div className={style['methodology-link']}>Read our detailed data methodology on <a href="https://github.com/ruralinnovation/formd-interactive-map" target="_blank">Github</a></div>
         </p>
         <div className={style['controls']}>
           <span><b>Filter counties by rurality</b></span>

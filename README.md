@@ -4,7 +4,7 @@ Map displaying cleaned Form D filings by county.
 
 # Data Methodology
 
-- We access raw Form D data using the `dform` package.
+- We access raw Form D data using the `dform` [package](https://github.com/ruralinnovation/dForm).
 - There are two datasets: issuers and offerings. The issuers dataset describes entities which are filing an offering. An entity which submits multiple filings will appear several times in the issuers dataset. The offerings dataset details these offerings.
 - To clean the issuers dataset, we remove unnecessary whitespace and standardize common entity and city naming conventions (e.g., normalize L.P. to LP).
 - Next, we associate each issuer with a county. When submitting a Form D filing, issuers must list an address. To convert from the address to a county, we take the following steps:
@@ -30,6 +30,7 @@ Map displaying cleaned Form D filings by county.
   - Once a business ID’s unique fundraising efforts have been identified, we determine the order in which each offering was filed using the accession number, which includes digits describing the year and the ordering of filing.
   - Once the offerings are in order, we can calculate the incremental amounts raised.
 - The data is then separated into two separate tables (businesses and funds) based upon whether the security includes Pooled Investment Fund interests.
+- We use the businesses dataset to drive this interactive map.
 
 # Development setup
 
